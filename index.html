@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Myntra Lite – Responsive Clone</title>
+  <meta name="description" content="A simple, responsive Myntra-like storefront built with HTML, CSS, and JavaScript.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#121212;
+      --muted:#6b7280;
+      --brand:#ff3f6c; /* Myntra-ish pink */
+      --brand-dark:#e2355d;
+      --card:#f8fafc;
+      --border:#e5e7eb;
+      --success:#16a34a;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer;border:0;background:transparent}
+    img{max-width:100%;display:block}
+    .container{max-width:1200px;margin-inline:auto;padding:0 16px}
+    /* Top Nav */
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      background:#fff;box-shadow:0 1px 0 var(--border);
+    }
+    .nav{
+      display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+      padding:10px 0;
+    }
+    .brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.5px}
+    .brand-badge{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,#ff3f6c,#ffb6c1);color:white;font-weight:900}
+    .nav-links{display:flex;gap:18px;align-items:center;font-size:.95rem}
+    .nav-links a{opacity:.9}
+    .nav-links a:hover{opacity:1;color:var(--brand)}
+    .search{
+      display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);
+      border-radius:12px;padding:10px 12px;max-width:560px;margin-inline:auto;
+    }
+    .search input{flex:1;border:0;outline:0;background:transparent;font-size:.95rem}
+    .actions{display:flex;gap:14px;align-items:center}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:8px 12px;border-radius:999px;font-size:.9rem}
+    .btn{background:var(--brand);color:white;border-radius:10px;padding:10px 14px;font-weight:600}
+    .btn:hover{background:var(--brand-dark)}
+    .icon{width:20px;height:20px;display:inline-block}
+    /* Hero */
+    .hero{background:linear-gradient(180deg,#fff,#fffdfd)}
+    .hero-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center;padding:18px 0 8px}
+    .hero h1{margin:8px 0 0;font-size:2rem;line-height:1.2}
+    .hero p{margin:6px 0 0;color:var(--muted)}
+    .hero-banner{border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+    /* Category bar */
+    .categories{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px}
+    .chip{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;font-size:.9rem}
+    .chip.active,.chip:hover{background:var(--brand);border-color:var(--brand);color:#fff}
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:14px 0 60px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+    .badge{position:absolute;top:10px;left:10px;background:#000000cc;color:#fff;padding:6px 10px;border-radius:10px;font-size:.8rem}
+    .thumb-wrap{position:relative;aspect-ratio:3/4;background:var(--card)}
+    .content{padding:12px 12px 10px;display:flex;flex-direction:column;gap:6px}
+    .brand{font-weight:700}
+    .title{font-size:.95rem;opacity:.9}
+    .price{display:flex;gap:8px;align-items:center}
+    .price strong{font-size:1.05rem}
+    .mrp{color:var(--muted);text-decoration:line-through;font-size:.9rem}
+    .off{color:var(--success);font-weight:600;font-size:.9rem}
+    .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .row .mini{font-size:.85rem;color:var(--muted)}
+    .card .cta{display:flex;gap:8px;margin-top:8px}
+    .cta .btn,.cta .ghost{flex:1}
+    .ghost{border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:#fff}
+    .ghost:hover{border-color:#cbd5e1}
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:30px 0;color:var(--muted);font-size:.9rem}
+    /* Drawer/Modal */
+    .overlay{position:fixed;inset:0;background:#0006;display:none}
+    .drawer{position:fixed;right:0;top:0;height:100%;width:min(420px,90vw);background:#fff;border-left:1px solid var(--border);transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column}
+    .drawer.open{transform:translateX(0)}
+    .overlay.show{display:block}
+    .drawer header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+    .drawer h3{margin:0;font-size:1.1rem}
+    .drawer .body{padding:12px 12px 80px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+    .cart-item{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center;border:1px solid var(--border);border-radius:12px;padding:8px;background:#fff}
+    .cart-item img{border-radius:8px}
+    .qty{display:flex;gap:8px;align-items:center}
+    .qty button{border:1px solid var(--border);border-radius:8px;padding:4px 8px}
+    .drawer footer{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px}
+    /* Responsive */
+    @media (max-width: 1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width: 768px){
+      .nav{grid-template-columns:1fr auto;gap:10px}
+      .nav-links{display:none}
+      .hero-inner{grid-template-columns:1fr}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .actions .pill{display:none}
+    }
+    @media (max-width: 480px){
+      .grid{grid-template-columns:1fr}
+      .search{max-width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container nav">
+      <div class="brand">
+        <div class="brand-badge">M</div>
+        Myntra <span style="font-weight:400;opacity:.6">Lite</span>
+      </div>
+      <div class="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="searchInput" placeholder="Search for products, brands and more" />
+      </div>
+      <div class="actions">
+        <a class="pill" id="wishlistBtn">❤️ Wishlist</a>
+        <a class="pill" id="cartBtn">🛍️ Bag <span id="bagCount" style="font-weight:700;margin-left:6px">0</span></a>
+        <a class="btn" href="#" id="signin">Sign in</a>
+      </div>
+      <div class="nav-links">
+        <a href="#" data-cat="men" class="chip">Men</a>
+        <a href="#" data-cat="women" class="chip">Women</a>
+        <a href="#" data-cat="kids" class="chip">Kids</a>
+        <a href="#" data-cat="beauty" class="chip">Beauty</a>
+        <a href="#" data-cat="home" class="chip">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <h1>End of Season Sale is Live</h1>
+        <p>Up to 60% off on top brands. Free shipping on orders over ₹799.</p>
+        <div class="categories" id="categoryBar">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="T-Shirts">T‑Shirts</button>
+          <button class="chip" data-filter="Shoes">Shoes</button>
+          <button class="chip" data-filter="Jeans">Jeans</button>
+          <button class="chip" data-filter="Beauty">Beauty</button>
+          <button class="chip" data-filter="Home">Home</button>
+        </div>
+      </div>
+      <a class="hero-banner" href="https://picsum.photos/seed/myntra-banner/1200/500" target="_blank" rel="noopener">
+        <img src="https://picsum.photos/seed/myntra-banner/1200/500" alt="Promotional banner"/>
+      </a>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="row" style="margin:10px 0">
+      <div class="mini">Showing <span id="count"></span> products</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="sort" class="chip" style="padding:8px 10px">
+          <option value="relevance">Sort: Relevance</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="discount-desc">Discount: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <section id="grid" class="grid"></section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>Built with ❤️ using HTML, CSS & JavaScript. Not affiliated with Myntra.</div>
+    </div>
+  </footer>
+
+  <!-- Drawers -->
+  <div id="overlay" class="overlay"></div>
+  <aside id="cartDrawer" class="drawer" aria-hidden="true">
+    <header>
+      <h3>My Bag</h3>
+      <button onclick="closeDrawer('cartDrawer')">✕</button>
+    </header>
+    <div class="body" id="cartItems"></div>
+    <footer>
+      <div style="flex:1">
+        <div style="font-weight:700">Total: ₹<span id="cartTotal">0</span></div>
+        <div class="mini">Taxes and shipping calculated at checkout.</div>
+      </div>
+      <button class="btn" style="flex:1" onclick="alert('Demo checkout – integrate payment gateway here!')">Checkout</button>
+    </footer>
+  </aside>
+
+  <aside id="wishDrawer" class="drawer" aria-hidden="true">
+    <header>
+      <h3>Wishlist</h3>
+      <button onclick="closeDrawer('wishDrawer')">✕</button>
+    </header>
+    <div class="body" id="wishItems"></div>
+  </aside>
+
+<script>
+// ----- Data (mock) -----
+const PRODUCTS = [
+  {id:"p1", brand:"Roadster", title:"Printed Cotton T‑Shirt", category:"T-Shirts", price:499, mrp:899, off:45, rating:4.2, img:"https://picsum.photos/seed/tshirt1/600/800"},
+  {id:"p2", brand:"HRX", title:"Active Running Shoes", category:"Shoes", price:1799, mrp:3499, off:48, rating:4.1, img:"https://picsum.photos/seed/shoe1/600/800"},
+  {id:"p3", brand:"H&M", title:"Slim Fit Jeans", category:"Jeans", price:1599, mrp:2599, off:38, rating:4.4, img:"https://picsum.photos/seed/jeans1/600/800"},
+  {id:"p4", brand:"MANGO", title:"Solid Blouse", category:"T-Shirts", price:1299, mrp:2199, off:41, rating:4.0, img:"https://picsum.photos/seed/top1/600/800"},
+  {id:"p5", brand:"Puma", title:"Sneakers Unisex", category:"Shoes", price:2499, mrp:4499, off:44, rating:4.6, img:"https://picsum.photos/seed/shoe2/600/800"},
+  {id:"p6", brand:"Maybelline", title:"Matte Lipstick", category:"Beauty", price:299, mrp:499, off:40, rating:4.3, img:"https://picsum.photos/seed/beauty1/600/800"},
+  {id:"p7", brand:"HomeCentre", title:"Cotton Bedsheet", category:"Home", price:899, mrp:1599, off:44, rating:4.5, img:"https://picsum.photos/seed/home1/600/800"},
+  {id:"p8", brand:"Levi's", title:"511 Skinny Jeans", category:"Jeans", price:2799, mrp:3999, off:30, rating:4.2, img:"https://picsum.photos/seed/jeans2/600/800"},
+  {id:"p9", brand:"Roadster", title:"Oversized T‑Shirt", category:"T-Shirts", price:699, mrp:1299, off:46, rating:4.1, img:"https://picsum.photos/seed/tshirt2/600/800"},
+  {id:"p10", brand:"Boat", title:"Airdopes 141 ANC", category:"Beauty", price:1899, mrp:2999, off:37, rating:4.2, img:"https://picsum.photos/seed/beauty2/600/800"},
+  {id:"p11", brand:"Nike", title:"Revolution 6", category:"Shoes", price:2999, mrp:5999, off:50, rating:4.4, img:"https://picsum.photos/seed/shoe3/600/800"},
+  {id:"p12", brand:"Roadster", title:"Graphic Tee", category:"T-Shirts", price:549, mrp:999, off:45, rating:4.0, img:"https://picsum.photos/seed/tshirt3/600/800"}
+];
+
+// ----- State -----
+const state = {
+  query: "", filter: "all", sort: "relevance",
+  cart: JSON.parse(localStorage.getItem("cart")||"[]"),
+  wishlist: JSON.parse(localStorage.getItem("wishlist")||"[]")
+};
+
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+const bagCount = document.getElementById("bagCount");
+const overlay = document.getElementById("overlay");
+const cartDrawer = document.getElementById("cartDrawer");
+const wishDrawer = document.getElementById("wishDrawer");
+
+// ----- Helpers -----
+const save = () => {
+  localStorage.setItem("cart", JSON.stringify(state.cart));
+  localStorage.setItem("wishlist", JSON.stringify(state.wishlist));
+}
+const inWishlist = id => state.wishlist.includes(id);
+const cartQty = id => (state.cart.find(c=>c.id===id)||{}).qty || 0;
+
+// ----- Render -----
+function render(){
+  let list = [...PRODUCTS];
+  // filter
+  if(state.filter !== "all") list = list.filter(p => p.category === state.filter);
+  // search
+  if(state.query.trim()){
+    const q = state.query.toLowerCase();
+    list = list.filter(p => (p.brand+p.title+p.category).toLowerCase().includes(q));
+  }
+  // sort
+  if(state.sort==="price-asc") list.sort((a,b)=>a.price-b.price);
+  if(state.sort==="price-desc") list.sort((a,b)=>b.price-a.price);
+  if(state.sort==="discount-desc") list.sort((a,b)=>b.off-a.off);
+  // render cards
+  countEl.textContent = list.length;
+  grid.innerHTML = list.map(p => `
+    <article class="card" aria-label="${p.brand} ${p.title}">
+      <div class="thumb-wrap">
+        <span class="badge">${p.off}% OFF</span>
+        <img src="${p.img}" alt="${p.title}">
+      </div>
+      <div class="content">
+        <div class="brand">${p.brand}</div>
+        <div class="title">${p.title}</div>
+        <div class="row">
+          <div class="price">
+            <strong>₹${p.price}</strong>
+            <span class="mrp">₹${p.mrp}</span>
+            <span class="off">(${p.off}% OFF)</span>
+          </div>
+          <div class="mini">★ ${p.rating}</div>
+        </div>
+        <div class="cta">
+          <button class="btn" onclick="addToBag('${p.id}')">${cartQty(p.id) ? 'Add Again' : 'Add to Bag'}</button>
+          <button class="ghost" onclick="toggleWishlist('${p.id}')">${inWishlist(p.id) ? '♥' : '♡'} Wishlist</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+  bagCount.textContent = state.cart.reduce((s,c)=>s+c.qty,0);
+  renderCart();
+  renderWishlist();
+}
+
+function renderCart(){
+  const wrap = document.getElementById("cartItems");
+  if(!state.cart.length){ wrap.innerHTML = '<div class="mini">Your bag is empty.</div>'; document.getElementById("cartTotal").textContent=0; return; }
+  let total = 0;
+  wrap.innerHTML = state.cart.map(c => {
+    const p = PRODUCTS.find(x=>x.id===c.id);
+    const line = p.price * c.qty;
+    total += line;
+    return `
+      <div class="cart-item">
+        <img src="${p.img}" width="72" height="96" alt="${p.title}"/>
+        <div>
+          <div style="font-weight:600">${p.brand}</div>
+          <div class="mini">${p.title}</div>
+          <div class="mini">₹${p.price} x ${c.qty}</div>
+        </div>
+        <div class="qty">
+          <button onclick="decQty('${c.id}')">−</button>
+          <span>${c.qty}</span>
+          <button onclick="incQty('${c.id}')">+</button>
+          <button title="Remove" onclick="removeFromCart('${c.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  document.getElementById("cartTotal").textContent = total.toFixed(0);
+}
+
+function renderWishlist(){
+  const wrap = document.getElementById("wishItems");
+  if(!state.wishlist.length){ wrap.innerHTML = '<div class="mini">Your wishlist is empty.</div>'; return; }
+  wrap.innerHTML = state.wishlist.map(id => {
+    const p = PRODUCTS.find(x=>x.id===id);
+    return `
+      <div class="cart-item">
+        <img src="${p.img}" width="72" height="96" alt="${p.title}"/>
+        <div>
+          <div style="font-weight:600">${p.brand}</div>
+          <div class="mini">${p.title}</div>
+        </div>
+        <div class="qty">
+          <button class="btn" onclick="addToBag('${id}')">Add to Bag</button>
+          <button onclick="toggleWishlist('${id}')">Remove</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ----- Actions -----
+function addToBag(id){
+  const line = state.cart.find(c=>c.id===id);
+  if(line) line.qty += 1; else state.cart.push({id, qty:1});
+  save(); render();
+}
+function removeFromCart(id){
+  state.cart = state.cart.filter(c=>c.id!==id);
+  save(); render();
+}
+function incQty(id){ const l = state.cart.find(c=>c.id===id); if(l){ l.qty+=1; save(); render(); } }
+function decQty(id){ const l = state.cart.find(c=>c.id===id); if(l){ l.qty=Math.max(0,l.qty-1); if(!l.qty) removeFromCart(id); save(); render(); } }
+function toggleWishlist(id){
+  if(inWishlist(id)) state.wishlist = state.wishlist.filter(x=>x!==id);
+  else state.wishlist.push(id);
+  save(); render();
+}
+
+// ----- Drawers -----
+function openDrawer(id){ document.getElementById(id).classList.add("open"); overlay.classList.add("show"); }
+function closeDrawer(id){ document.getElementById(id).classList.remove("open"); overlay.classList.remove("show"); }
+overlay.addEventListener("click", ()=>{closeDrawer('cartDrawer');closeDrawer('wishDrawer');});
+
+// ----- Events -----
+document.getElementById("searchInput").addEventListener("input", (e)=>{ state.query = e.target.value; render();});
+document.getElementById("sort").addEventListener("change", (e)=>{ state.sort = e.target.value; render();});
+document.querySelectorAll('[data-filter]').forEach(el=> el.addEventListener('click', (e)=>{
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  e.target.classList.add('active');
+  state.filter = e.target.dataset.filter;
+  render();
+}));
+document.getElementById("cartBtn").addEventListener("click", ()=>openDrawer('cartDrawer'));
+document.getElementById("wishlistBtn").addEventListener("click", ()=>openDrawer('wishDrawer'));
+
+// Init
+render();
+</script>
+</body>
+</html>
